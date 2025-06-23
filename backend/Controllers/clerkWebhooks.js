@@ -1,6 +1,6 @@
 // controllers/clerkWebhooks.js
-import User from '../Models/User.js';
-import { Webhook } from 'svix';
+import User from "../Models/User.js";
+import { Webhook } from "svix";
 
 const clerkWebhooks = async (req, res) => {
   try {
@@ -28,14 +28,18 @@ const clerkWebhooks = async (req, res) => {
     const userData = {
       _id: data.id,
       email,
-      username: `${data.first_name || ''} ${data.last_name || ''}`.trim(),
+      username: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
       image: data.image_url || "https://default-image.url/avatar.png",
     };
 
     // 7. จัดการตาม event ประเภทต่าง ๆ
     switch (type) {
       case "user.created":
-        await User.create(userData);
+        await User.findOneAndUpdate({ _id: data.id }, userData, {
+          upsert: true,
+          new: true,
+        });
+
         break;
 
       case "user.updated":
