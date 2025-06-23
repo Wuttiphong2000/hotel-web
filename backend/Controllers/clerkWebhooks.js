@@ -19,25 +19,43 @@ const clerkWebhooks = async (req, res) => {
     // Getting Data From request body
     const { data, type } = req.body;
 
-    const userData = {
-      _id: data.id,
-      email: data.email_addresses[0].email_address,
-      username: data.first_name + " " + data.last_name,
-      image: data.image_url,
-    };
-
-    // Switch Cases for different Event
     switch (type) {
       case "user.created": {
+        const userData = {
+          _id: data.id,
+          email:
+            data.email_addresses && data.email_addresses.length > 0
+              ? data.email_addresses[0].email_address
+              : null,
+          username: [data.first_name, data.last_name]
+            .filter(Boolean)
+            .join(" ")
+            .trim(),
+          image: data.image_url,
+        };
         await User.create(userData);
+        console.log(`User created: ${userData._id}`);
         break;
       }
       case "user.updated": {
-        await User.findByIdAndUpdate(data.id, userData);
+        const userData = {
+          email:
+            data.email_addresses && data.email_addresses.length > 0
+              ? data.email_addresses[0].email_address
+              : null,
+          username: [data.first_name, data.last_name]
+            .filter(Boolean)
+            .join(" ")
+            .trim(),
+          image: data.image_url,
+        };
+        await User.findByIdAndUpdate(data.id, userData, { new: true });
+        console.log(`User updated: ${data.id}`);
         break;
       }
       case "user.deleted": {
         await User.findByIdAndDelete(data.id);
+        console.log(`User deleted: ${data.id}`);
         break;
       }
       default:
