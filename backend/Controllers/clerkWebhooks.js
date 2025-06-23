@@ -14,42 +14,32 @@ const clerkWebhooks = async (req, res) => {
       "svix-signature": req.headers["svix-signature"],
     };
 
-    // 3. ตรวจสอบ webhook ว่าถูกต้องหรือไม่
+    // Verifying Headers
     await whook.verify(JSON.stringify(req.body), headers);
-
-    // 4. ดึงข้อมูลจาก webhook
+    // Getting Data From request body
     const { data, type } = req.body;
 
-    // 5. ตรวจสอบ email
-    const email = data.email_addresses?.[0]?.email_address;
-    if (!email) throw new Error("Missing email address from Clerk");
-
-    // 6. เตรียมข้อมูล User สำหรับ MongoDB
     const userData = {
       _id: data.id,
-      email,
-      username: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
-      image: data.image_url || "https://default-image.url/avatar.png",
+      email: data.email_addresses[0].email_address,
+      username: data.first_name + " " + data.last_name,
+      image: data.image_url,
     };
 
-    // 7. จัดการตาม event ประเภทต่าง ๆ
+    // Switch Cases for different Event
     switch (type) {
-      case "user.created":
-        await User.findOneAndUpdate({ _id: data.id }, userData, {
-          upsert: true,
-          new: true,
-        });
-
+      case "user.created": {
+        await User.create(userData);
         break;
-
-      case "user.updated":
-        await User.findByIdAndUpdate(data.id, userData, { upsert: true });
+      }
+      case "user.updated": {
+        await User.findByIdAndUpdate(data.id, userData);
         break;
-
-      case "user.deleted":
+      }
+      case "user.deleted": {
         await User.findByIdAndDelete(data.id);
         break;
-
+      }
       default:
         break;
     }
