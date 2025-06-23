@@ -4,7 +4,6 @@ import connectDB from "./Configs/db.js";
 import "dotenv/config";
 import { clerkMiddleware } from "@clerk/express";
 import clerkWebhooks from "./Controllers/clerkWebhooks.js";
-import bodyParser from "body-parser";
 
 connectDB();
 
@@ -15,7 +14,7 @@ app.use(express.json());
 app.use(clerkMiddleware());
 
 // API to listen to Clerk Webhook
-app.post("/api/clerk", bodyParser.raw({ type: "application/json" }), clerkWebhooks);
+app.use("/api/clerk", clerkWebhooks);
 
 const PORT = process.env.PORT || 3000;
 
