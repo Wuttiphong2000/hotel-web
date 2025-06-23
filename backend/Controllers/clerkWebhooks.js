@@ -3,18 +3,19 @@ import { Webhook } from 'svix'
 
 const clerkWebhooks = async (req,res) => {
     try {
-        // Create a Svix instance with clerk webhook secret
-        const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET)
         // Getting Headers
         const headers = {
             "svix-id": req.headers["svix-id"],
             "svix-timestamp": req.headers["svix-timestamp"],
             "svix-signature": req.headers["svix-signature"],
         };
+
+        const payload = req.body.toString("utf8");
         // Verifying Headers
-        await whook.verify(JSON.stringify(req.body),headers)
+        const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
+        const evt = whook.verify(payload, headers); // ✅ evt = { data, type }
         // Getting Data From request body
-        const {data, type} = req.body;
+          const { data, type } = evt;
 
         const userData = {
             _id: data.id,
