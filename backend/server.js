@@ -10,9 +10,9 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(clerkMiddleware());
 app.use(cors());
 app.use(express.json());
+app.use(clerkMiddleware());
 
 // API to listen to Clerk Webhook
 app.use("/api/clerk", clerkWebhooks);
