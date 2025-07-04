@@ -4,10 +4,8 @@ import { Webhook } from "svix";
 
 const clerkWebhooks = async (req, res) => {
   try {
-    // 1. สร้าง Webhook instance ด้วย secret จาก .env
     const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
 
-    // 2. เตรียมหัวข้อจาก request สำหรับตรวจสอบความถูกต้อง
     const headers = {
       "svix-id": req.headers["svix-id"],
       "svix-timestamp": req.headers["svix-timestamp"],
