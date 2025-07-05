@@ -22,13 +22,8 @@ const clerkWebhooks = async (req, res) => {
         const userData = {
           _id: data.id,
           email:
-            data.email_addresses && data.email_addresses.length > 0
-              ? data.email_addresses[0].email_address
-              : null,
-          username: [data.first_name, data.last_name]
-            .filter(Boolean)
-            .join(" ")
-            .trim(),
+            data.email_addresses[0].email_address,
+          username: data.first_name + " " + data.last_name,
           image: data.image_url,
         };
         await User.create(userData);
@@ -37,14 +32,10 @@ const clerkWebhooks = async (req, res) => {
       }
       case "user.updated": {
         const userData = {
+          _id: data.id,
           email:
-            data.email_addresses && data.email_addresses.length > 0
-              ? data.email_addresses[0].email_address
-              : null,
-          username: [data.first_name, data.last_name]
-            .filter(Boolean)
-            .join(" ")
-            .trim(),
+            data.email_addresses[0].email_address,
+          username: data.first_name + " " + data.last_name,
           image: data.image_url,
         };
         await User.findByIdAndUpdate(data.id, userData, { new: true });
